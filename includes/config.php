@@ -9,9 +9,10 @@ date_default_timezone_set('America/Los_Angeles'); #sets default date/timezone fo
 include 'credentials.php';
 include 'common.php';
 include 'MyAutoLoader.php';
+//include 'Pager.php';
 
 define('VIRTUAL_PATH', 'http://fivarra.com/retro/'); # Virtual (web) 'root' of application for images, JS & CSS files
-define('PHYSICAL_PATH', '/home/fivarra/fivarra.com/retro/'); # Physical (PHP) 'root' of application for file & upload reference
+define('PHYSICAL_PATH', '/home/fraiva2/fivarra.com/retro/'); # Physical (PHP) 'root' of application for file & upload reference
 define('INCLUDE_PATH', PHYSICAL_PATH . 'includes/'); # Path to PHP include files - INSIDE APPLICATION ROOT
 
 ob_start();  #buffers our page to be prevent header errors. Call before INC files or ANY html!

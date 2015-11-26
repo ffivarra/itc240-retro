@@ -64,9 +64,9 @@ if(mysqli_num_rows($result) > 0)
             <a href="' . VIRTUAL_PATH . 'customer_view.php?id=' . (int)$row['CustomerID'] . '">' . dbOut($row['FirstName']) . '</a>
             </div>';
 	}
-	echo $myPager->showNAV(); # show paging nav, only if enough records	 
+	echo $myPager->showNAV('<p align="center">','</p>'); # show paging nav, only if enough records	 
 }else{#no records
-    echo "<div align=center>What! No Customers?  There must be a mistake!!</div>";	
+    echo "<div align=center>What! No Customers? There must be a mistake!!</div>";
 }
 @mysqli_free_result($result);
 @mysqli_close($iConn);
