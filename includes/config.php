@@ -1,8 +1,21 @@
 <?php
 //config.php
 
+define('DEBUG',TRUE); #we want to see all errors
+
+date_default_timezone_set('America/Los_Angeles'); #sets default date/timezone for this website
+
 //database credentials here
 include 'credentials.php';
+include 'common.php';
+include 'MyAutoLoader.php';
+
+define('VIRTUAL_PATH', 'http://fivarra.com/retro/'); # Virtual (web) 'root' of application for images, JS & CSS files
+define('PHYSICAL_PATH', '/home/fivarra/fivarra.com/retro/'); # Physical (PHP) 'root' of application for file & upload reference
+define('INCLUDE_PATH', PHYSICAL_PATH . 'includes/'); # Path to PHP include files - INSIDE APPLICATION ROOT
+
+ob_start();  #buffers our page to be prevent header errors. Call before INC files or ANY html!
+header("Cache-Control: no-cache");header("Expires: -1");#Helps stop browser & proxy caching
 
 //this defines the current filename:
 define('THIS_PAGE', basename($_SERVER['PHP_SELF'])); //constants never change and are always available
