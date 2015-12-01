@@ -1,27 +1,5 @@
-<?php include 'includes/config.php';?>
-<?php include 'includes/header.php';?>
+//START CODE TO ADD TO CONTACT PAGE!-----------------
 
-<h1><?=$pageID?></h1>
-
-<?php
-
-if(isset($_POST['Submit'])){ //data submitted
- 
-    /*
-    echo '<pre>';
-    var_dump($_POST);
-    echo '</pre>';
-    */
-    
-    $to = 'fivarr01@seattlecentral.edu';
-    $subject = 'Test from contact form.';
-    $message = process_post();
-    $replyTo = $_POST['Email'];
-    
-    safeEmail($to, $subject, $message, $replyTo);
-    
-    echo 'Submission Successful. Thank you!';
-    
     //connect to the database in order to add contact data
     $iConn = @mysqli_connect(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME) or die(myerror(__FILE__,__LINE__,mysqli_connect_error()));
 
@@ -56,21 +34,33 @@ if(isset($_POST['Submit'])){ //data submitted
     
     //close connection
     @mysqli_close($iConn);
-}
-else{ //show form
-    
-    echo '
-    
-    <form method="post" action="' . THIS_PAGE . '">
-    Name: <input type="text" name="Name" required="required"/><br />
-    Email: <input type="email" name="Email" required="required"/><br />
-    Comments: <textarea name="Comments"></textarea><br />
-    <input type="submit" value="Send" name="Submit"/>
-    </form>
-    
-    ';
-}
 
-?>
+//END CODE TO ADD TO CONTACT PAGE!-----------------
 
-<?php include 'includes/footer.php';?>
+//START FUNCTION TO ADD TO common.php INCLUDE FILE!---------------------------------
+
+/**
+ * Filters data per MySQL standards before entering database. 
+ *
+ * Adds slashes and helps prevent SQL injection per MySQL standards.    
+ * Function enclosed in 'wrapper' function to add further functionality  
+ * as vulnerabilities emerge.
+ *
+ * @param string $var data as entered by user
+ * @param object $myConn active mysqli DB connection, passed by reference.
+ * @return string returns data filtered by MySQL, adding slashes, etc.
+ * @see dbIn() 
+ * @todo none
+ */
+function dbIn($var,&$iConn)
+{
+	if(isset($var) && $var != "")
+	{
+		return mysqli_real_escape_string($iConn,$var);
+	}else{
+		return "";
+	}
+	
+} #End dbIn()
+
+//END FUNCTION TO ADD TO common.php INCLUDE FILE!---------------------------------

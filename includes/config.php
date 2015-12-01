@@ -118,3 +118,40 @@ function makeLinks($arr, $prefix = '', $suffix = '', $exception = ''){
     }
     return $myReturn;
 }; //end of makeLinks()
+
+function process_post()
+{//loop through POST vars and return a single string
+    $myReturn = ''; //set to initial empty value
+
+    foreach($_POST as $varName=> $value)
+    {#loop POST vars to create JS array on the current page - include email
+         $strippedVarName = str_replace("_"," ",$varName);#remove underscores
+        if(is_array($_POST[$varName]))
+         {#checkboxes are arrays, and we need to collapse the array to comma separated string!
+             $myReturn .= $strippedVarName . ": " . implode(",",$_POST[$varName]) . PHP_EOL;
+         }else{//not an array, create line
+             $myReturn .= $strippedVarName . ": " . $value . PHP_EOL;
+         }
+    }
+    return $myReturn;
+}
+
+function safeEmail($to, $subject, $message, $replyTo='')
+
+{#builds and sends a safe email, using Reply-To properly!
+
+	$fromDomain = $_SERVER["SERVER_NAME"];
+
+	$fromAddress = "noreply@" . $fromDomain; //form always submits from domain where form resides
+
+	if($replyTo==''){$replyTo='';}
+
+	$headers = 'From: ' . $fromAddress . PHP_EOL .
+
+		'Reply-To: ' . $replyTo . PHP_EOL .
+
+		'X-Mailer: PHP/' . phpversion();
+
+	return mail($to, $subject, $message, $headers);
+
+}
