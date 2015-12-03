@@ -1,64 +1,87 @@
 <?php
 //config.php
 
-define('DEBUG',TRUE); #we want to see all errors
+define('DEBUG',true); #we want to see all errors
+
+define('SECURE',false); #force secure, https, for all site pages
+
+define('PREFIX', 'retro_'); #Adds uniqueness to your DB table names.  Limits hackability, naming collisions
 
 date_default_timezone_set('America/Los_Angeles'); #sets default date/timezone for this website
 
-//database credentials here
-include 'credentials.php';
-include 'common.php';
-include 'MyAutoLoader.php';
-//include 'Pager.php';
+/* 
+ *   Virtual (web) 'root' of application for images, JS & CSS files
+ *   
+ *   IF SECURE, MUST BE https://
+ *   Contact hosting company for assistance:
+ *   http://wiki.dreamhost.com/Secure_Hosting
+*/
+define('VIRTUAL_PATH', 'http://fivarra.com/retro/'); 
 
-define('VIRTUAL_PATH', 'http://fivarra.com/retro/'); # Virtual (web) 'root' of application for images, JS & CSS files
 define('PHYSICAL_PATH', '/home/fraiva2/fivarra.com/retro/'); # Physical (PHP) 'root' of application for file & upload reference
+
+# END GENERAL SETTINGS, START BOOTSTRAP CODE ---------------------------
+
+/*
+ * reference required include files here
+ */
+include 'credentials.php'; //stores database login info
+include 'common.php'; //stores all unsightly application functions, etc.
+include 'MyAutoLoader.php'; //loads class that autoloads all classes in include folder
+
+//This defines the current file name
+define('THIS_PAGE',basename($_SERVER['PHP_SELF']));
+
+//force secure website
+if (SECURE && $_SERVER['SERVER_PORT'] != 443) {#force HTTPS
+	header("Location: https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+}
+
 define('INCLUDE_PATH', PHYSICAL_PATH . 'includes/'); # Path to PHP include files - INSIDE APPLICATION ROOT
+
+define('ADMIN_PATH', VIRTUAL_PATH); # Could change to sub folder
 
 ob_start();  #buffers our page to be prevent header errors. Call before INC files or ANY html!
 header("Cache-Control: no-cache");header("Expires: -1");#Helps stop browser & proxy caching
 
-//this defines the current filename:
-define('THIS_PAGE', basename($_SERVER['PHP_SELF'])); //constants never change and are always available
+# END BOOTSTRAP CODE, START SITE SPECIFIC DATA ---------------------------
 
-//echo THIS_PAGE;
-
-//this allows us to add unique info to our pages:
+//this allows us to add unique info to our pages
 switch(THIS_PAGE){
-	case "index.php":
-		$title = "Home";
-		$pageID = "Welcome!";
-		$headerPic = "images/dt.jpg";
-		break;
-	
+        case "index.php":
+        $title = "Home";
+        $pageID = "Welcome!";
+        $headerPic = "images/dt.jpg";
+        break;
+    
     case "template.php":
         $title = "Template";
         $pageID = "My Template Page ID";
-		$headerPic = "images/blueprint.jpg";
+        $headerPic = "images/blueprint.jpg";
         break;
         
     case "daily.php":
         $title = "Daily";
         $pageID = "SoTD Page ID";
-		$headerPic = "images/calendar.png";
+        $headerPic = "images/calendar.png";
         break;
     
-	case "contact.php":
-		$title = "Contact";
-		$pageID = "Send Us Your Feedback!";
-		$headerPic = "images/contact.png";
-		break;
-		
+        case "contact.php":
+        $title = "Contact";
+        $pageID = "Send Us Your Feedback!";
+        $headerPic = "images/contact.png";
+        break;
+        
     case "newsletter.php":
-		$title = "Newsletter";
-		$pageID = "Join Our Mailing List!";
-		break;
+        $title = "Newsletter";
+        $pageID = "Join Our Mailing List!";
+        break;
         
     case "artists_list.php":
-		$title = "Artists";
-		$pageID = "Learn More About Your Favorite Music Artists!";
-		break;
-	
+        $title = "Artists";
+        $pageID = "Learn More About Your Favorite Music Artists!";
+        break;
+    
     default:
         $title = THIS_PAGE;
         $pageID = "Golly Gee Willikers!";
@@ -72,86 +95,22 @@ $nav1['contact.php'] = 'Contact';
 $nav1['newsletter.php'] = 'Newsletter';
 $nav1['artists_list.php'] = 'Artists';
 
-				/*
-                <li>
-					<a href="index.html">Home</a>
-				</li>
-				<li>
-					<a class="active" href="about.html">About</a>
-				</li>
-				<li>
-					<a href="burger.html">Menu</a>
-				</li>
-				<li>
-					<a href="contact.html">Contact</a>
-				</li>
-				<li>
-					<a href="blog.html">Blog</a>
-				</li>
-                */
-			
 /*
-foreach($nav1 as $link => $label){
-    echo "link is $link and label is $label<br />";
-}
+ * adminWidget allows clients to get to admin page from anywhere
+ * code will show/hide based on logged in status
 */
-
-//echo $title;
-
-//die;
-
-//creates links inside the "header.php" file:
-
-//
-
-function makeLinks($arr, $prefix = '', $suffix = '', $exception = ''){
-    $myReturn = '';
-    foreach($arr as $link => $label){
-        
-        if(THIS_PAGE == $link){
-            //current file gets active class:
-            $myReturn .= $exception . '<a href="' . $link . '">' . $label . '</a>' . $suffix;
-        }
-        else{
-            $myReturn .= $prefix . '<a href="' . $link . '">' . $label . '</a>' . $suffix;
-        }
-    }
-    return $myReturn;
-}; //end of makeLinks()
-
-function process_post()
-{//loop through POST vars and return a single string
-    $myReturn = ''; //set to initial empty value
-
-    foreach($_POST as $varName=> $value)
-    {#loop POST vars to create JS array on the current page - include email
-         $strippedVarName = str_replace("_"," ",$varName);#remove underscores
-        if(is_array($_POST[$varName]))
-         {#checkboxes are arrays, and we need to collapse the array to comma separated string!
-             $myReturn .= $strippedVarName . ": " . implode(",",$_POST[$varName]) . PHP_EOL;
-         }else{//not an array, create line
-             $myReturn .= $strippedVarName . ": " . $value . PHP_EOL;
-         }
-    }
-    return $myReturn;
+if(startSession() && isset($_SESSION['AdminID']))
+{#add admin logged in info to sidebar or nav
+	$adminWidget = '<li><a href="' . ADMIN_PATH . 'admin_dashboard.php">ADMIN</a></li>';
+	$adminWidget .= '<li><a href="' . ADMIN_PATH . 'admin_logout.php">LOGOUT</a></li>';
+}else{//show login (YOU MAY WANT TO SET TO EMPTY STRING FOR SECURITY)
+    $adminWidget = '<li><a href="' . ADMIN_PATH . 'admin_login.php">LOGIN</a></li>';
 }
 
-function safeEmail($to, $subject, $message, $replyTo='')
-
-{#builds and sends a safe email, using Reply-To properly!
-
-	$fromDomain = $_SERVER["SERVER_NAME"];
-
-	$fromAddress = "noreply@" . $fromDomain; //form always submits from domain where form resides
-
-	if($replyTo==''){$replyTo='';}
-
-	$headers = 'From: ' . $fromAddress . PHP_EOL .
-
-		'Reply-To: ' . $replyTo . PHP_EOL .
-
-		'X-Mailer: PHP/' . phpversion();
-
-	return mail($to, $subject, $message, $headers);
-
-}
+/*
+ * These variables, when added to the header.php and footer.php files, 
+ * allow custom JS or CSS scripts to be loaded into <head> element and 
+ * just before the closing body tag, respectively
+ */
+$loadhead = '';
+$loadfoot = '';
